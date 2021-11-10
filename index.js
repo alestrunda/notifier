@@ -21,6 +21,6 @@ function toMinutes(milliseconds) {
   return milliseconds / 60 / 1000;
 }
 
-function toMilliseconds(milliseconds) {
-  return milliseconds * 60 * 1000;
+function toMilliseconds(minutes) {
+  return minutes * 60 * 1000;
 }
