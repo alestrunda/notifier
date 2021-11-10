@@ -1,4 +1,4 @@
-const DEFAULT_TIMEOUT = 1800000; // 30 minutes
+const DEFAULT_TIMEOUT = 3600000; // 1 hour
 
 const audio = new Audio(
   chrome.runtime.getURL("audio/goes-without-saying-608.mp3")
