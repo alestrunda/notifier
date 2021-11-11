@@ -3,11 +3,20 @@ const DEFAULT_TIMEOUT = 3600000; // 1 hour
 const audio = new Audio(
   chrome.runtime.getURL("audio/goes-without-saying-608.mp3")
 );
+let intervalId;
 
 chrome.runtime.onInstalled.addListener(async function () {
   await initDefaultTimeout();
   const timeout = await loadTimeout();
-  startNotifications(timeout);
+  intervalId = startNotifications(timeout);
+});
+
+chrome.runtime.onMessage.addListener(async function (message) {
+  if (message === "refresh") {
+    refreshNotifications();
+    return;
+  }
+  throw `Handle for "${message}" not implemented`;
 });
 
 function initDefaultTimeout() {
@@ -33,7 +42,15 @@ function loadTimeout() {
   });
 }
 
+async function refreshNotifications() {
+  console.log("refreshNotifications");
+  clearInterval(intervalId);
+  const timeout = await loadTimeout();
+  intervalId = startNotifications(timeout);
+}
+
 function startNotifications(timeout) {
+  console.log(`startNotifications ${timeout}ms`);
   return setInterval(() => {
     audio.play();
   }, timeout);

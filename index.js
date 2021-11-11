@@ -12,8 +12,8 @@ timeoutButton.onclick = function () {
   const timeout = toMilliseconds(timeoutInput.value);
 
   chrome.storage.sync.set({ timeout }, function () {
-    console.log(`Timeout set: ${timeout}ms.`);
     output.innerHTML = `Timeout updated to ${toMinutes(timeout)}m.`;
+    chrome.runtime.sendMessage(undefined, "refresh");
   });
 };
 
