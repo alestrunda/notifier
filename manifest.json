@@ -4,8 +4,7 @@
   "description": "Simple Chrome extension to periodically play notification sound.",
   "permissions": ["storage"],
   "background": {
-    "scripts": ["background.js"],
-    "persistent": false
+    "page": "background.html"
   },
   "options_page": "index.html",
   "icons": {

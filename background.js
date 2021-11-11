@@ -1,4 +1,5 @@
-const DEFAULT_TIMEOUT = 3600000; // 1 hour
+import { toMinutes } from "./helpers.js";
+import { DEFAULT_TIMEOUT, MESSAGE } from "./settings.js";
 
 const audio = new Audio(
   chrome.runtime.getURL("audio/goes-without-saying-608.mp3")
@@ -12,7 +13,7 @@ chrome.runtime.onInstalled.addListener(async function () {
 });
 
 chrome.runtime.onMessage.addListener(async function (message) {
-  if (message === "refresh") {
+  if (message === MESSAGE.REFRESH) {
     refreshNotifications();
     return;
   }
@@ -50,7 +51,7 @@ async function refreshNotifications() {
 }
 
 function startNotifications(timeout) {
-  console.log(`startNotifications ${timeout}ms`);
+  console.log(`startNotifications ${toMinutes(timeout)}m`);
   return setInterval(() => {
     audio.play();
   }, timeout);

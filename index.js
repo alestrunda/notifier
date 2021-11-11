@@ -1,3 +1,6 @@
+import { toMinutes, toMilliseconds } from "./helpers.js";
+import { MESSAGE } from "./settings.js";
+
 const timeoutButton = document.getElementById("timeoutButton");
 const timeoutInput = document.getElementById("timeoutInput");
 const output = document.getElementById("output");
@@ -13,14 +16,6 @@ timeoutButton.onclick = function () {
 
   chrome.storage.sync.set({ timeout }, function () {
     output.innerHTML = `Timeout updated to ${toMinutes(timeout)}m.`;
-    chrome.runtime.sendMessage(undefined, "refresh");
+    chrome.runtime.sendMessage(undefined, MESSAGE.REFRESH);
   });
 };
-
-function toMinutes(milliseconds) {
-  return milliseconds / 60 / 1000;
-}
-
-function toMilliseconds(minutes) {
-  return minutes * 60 * 1000;
-}
