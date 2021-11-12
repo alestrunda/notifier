@@ -28,9 +28,16 @@ submitButton.onclick = function () {
   const timeout = toMilliseconds(timeoutInput.value);
 
   chrome.storage.sync.set({ audioFile, timeout }, function () {
-    outputElement.innerHTML = `Timeout set to ${toMinutes(
-      timeout
-    )}m.\nAudio set to "${AUDIO_FILES[audioFile]}"`;
+    showUserMessage(
+      `Timeout set to ${toMinutes(timeout)}m.<br />Audio set to "${
+        AUDIO_FILES[audioFile]
+      }".`
+    );
     chrome.runtime.sendMessage(undefined, MESSAGE.refresh);
   });
 };
+
+function showUserMessage(message) {
+  outputElement.classList.remove("d-none");
+  outputElement.innerHTML = message;
+}
