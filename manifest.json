@@ -6,7 +6,7 @@
   "background": {
     "page": "background.html"
   },
-  "options_page": "index.html",
+  "options_page": "options.html",
   "icons": {
     "16": "images/16.png",
     "32": "images/32.png",
