@@ -10,9 +10,11 @@
   </head>
   <body>
     <h1>Set timeout in which notification sound will be periodically played.</h1>
-    <input id="timeoutInput" type="number" min="1"> minutes
+    Minutes: <input id="timeout" type="number" min="1">
     <br />
-    <button id="timeoutButton">Set new timeout</button>
+    Sound: <select id="audio"></select>
+    <br />
+    <button id="submit">Update</button>
     <p id="output"></p>
     <script type="module" src="index.js"></script>
   </body>

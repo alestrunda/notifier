@@ -1,44 +1,58 @@
-import { toMinutes } from "./helpers.js";
-import { DEFAULT_TIMEOUT, MESSAGE } from "./settings.js";
+import { createAudioElement, toMinutes } from "./helpers.js";
+import {
+  AUDIO_FILES,
+  DEFAULT_TIMEOUT,
+  MESSAGE,
+  STORAGE_KEYS,
+} from "./settings.js";
 
-const audio = new Audio(
-  chrome.runtime.getURL("audio/goes-without-saying-608.mp3")
-);
+let audioElement = createAudioElement(Object.keys(AUDIO_FILES)[0]);
 let intervalId;
 
 chrome.runtime.onInstalled.addListener(async function () {
-  await initDefaultTimeout();
-  const timeout = await loadTimeout();
+  await setDefaults();
+  const timeout = await loadFromStorage(STORAGE_KEYS.timeout);
   intervalId = startNotifications(timeout);
 });
 
-chrome.runtime.onMessage.addListener(async function (message) {
-  if (message === MESSAGE.REFRESH) {
+chrome.runtime.onMessage.addListener(function (message) {
+  if (message === MESSAGE.refresh) {
     refreshNotifications();
     return;
   }
-  throw `Handle for "${message}" not implemented`;
+  throw `Handler for "${message}" not implemented`;
 });
 
-function initDefaultTimeout() {
+function setDefaults() {
+  const audioFile = Object.keys(AUDIO_FILES)[0];
   return new Promise((resolve) => {
-    chrome.storage.sync.get(["timeout"], function (res) {
-      if (!res.timeout) {
-        chrome.storage.sync.set({ timeout: DEFAULT_TIMEOUT }, function () {
-          console.log(`Default timeout set: ${DEFAULT_TIMEOUT}ms.`);
-          resolve(DEFAULT_TIMEOUT);
-        });
-      } else {
-        resolve(res.timeout);
+    chrome.storage.sync.get(
+      [STORAGE_KEYS.audioFile, STORAGE_KEYS.timeout],
+      function (res) {
+        if (res.timeout) {
+          resolve();
+        }
+        chrome.storage.sync.set(
+          {
+            audioFile,
+            timeout: DEFAULT_TIMEOUT,
+          },
+          function () {
+            console.log(
+              `Defaults set: ${toMinutes(audioFile)}, ${DEFAULT_TIMEOUT}ms.`
+            );
+            resolve();
+          }
+        );
       }
-    });
+    );
   });
 }
 
-function loadTimeout() {
+function loadFromStorage(key) {
   return new Promise((resolve) => {
-    chrome.storage.sync.get(["timeout"], function (res) {
-      resolve(res.timeout);
+    chrome.storage.sync.get(key, function (res) {
+      resolve(res[key]);
     });
   });
 }
@@ -46,13 +60,15 @@ function loadTimeout() {
 async function refreshNotifications() {
   console.log("refreshNotifications");
   clearInterval(intervalId);
-  const timeout = await loadTimeout();
+  const audioFile = await loadFromStorage(STORAGE_KEYS.audioFile);
+  const timeout = await loadFromStorage(STORAGE_KEYS.timeout);
+  audioElement = createAudioElement(audioFile);
   intervalId = startNotifications(timeout);
 }
 
 function startNotifications(timeout) {
   console.log(`startNotifications ${toMinutes(timeout)}m`);
   return setInterval(() => {
-    audio.play();
+    audioElement.play();
   }, timeout);
 }
