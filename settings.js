@@ -1,3 +1,4 @@
+export const REMAINING_TIME_REFRESH_INTERVAL = 60000; // 1 minute
 export const DEFAULT_TIMEOUT = 3600000; // 1 hour
 
 export const MESSAGE = {
@@ -14,5 +15,6 @@ export const AUDIO_FILES = {
 
 export const STORAGE_KEYS = {
   audioFile: "audioFile",
+  remainingTime: "remainingTime",
   timeout: "timeout",
 };

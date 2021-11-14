@@ -1,18 +1,20 @@
-import { createAudioElement, toMinutes } from "./helpers.js";
+import { createAudioElement, loadFromStorage, toMinutes } from "./helpers.js";
 import {
   AUDIO_FILES,
   DEFAULT_TIMEOUT,
   MESSAGE,
+  REMAINING_TIME_REFRESH_INTERVAL,
   STORAGE_KEYS,
 } from "./settings.js";
 
 let audioElement = createAudioElement(Object.keys(AUDIO_FILES)[0]);
-let intervalId;
+let notificationsIntervalId;
 
 chrome.runtime.onInstalled.addListener(async function () {
   await setDefaults();
   const timeout = await loadFromStorage(STORAGE_KEYS.timeout);
-  intervalId = startNotifications(timeout);
+  notificationsIntervalId = startNotifications(timeout);
+  trackRemainingTime();
 });
 
 chrome.runtime.onMessage.addListener(function (message) {
@@ -23,47 +25,49 @@ chrome.runtime.onMessage.addListener(function (message) {
   throw `Handler for "${message}" not implemented`;
 });
 
-function setDefaults() {
+async function setDefaults() {
   const audioFile = Object.keys(AUDIO_FILES)[0];
+  const timeout = await loadFromStorage(STORAGE_KEYS.timeout);
   return new Promise((resolve) => {
-    chrome.storage.sync.get(
-      [STORAGE_KEYS.audioFile, STORAGE_KEYS.timeout],
-      function (res) {
-        if (res.timeout) {
-          resolve();
-        }
-        chrome.storage.sync.set(
-          {
-            audioFile,
-            timeout: DEFAULT_TIMEOUT,
-          },
-          function () {
-            console.log(
-              `Defaults set: ${toMinutes(audioFile)}, ${DEFAULT_TIMEOUT}ms.`
-            );
-            resolve();
-          }
+    if (timeout !== undefined) {
+      // defaults already set, nothing to do
+      resolve();
+    }
+    chrome.storage.sync.set(
+      {
+        [STORAGE_KEYS.audioFile]: audioFile,
+        [STORAGE_KEYS.remainingTime]: DEFAULT_TIMEOUT,
+        [STORAGE_KEYS.timeout]: DEFAULT_TIMEOUT,
+      },
+      function () {
+        console.log(
+          `Defaults set: ${toMinutes(audioFile)}, ${DEFAULT_TIMEOUT}ms.`
         );
+        resolve();
       }
     );
   });
 }
 
-function loadFromStorage(key) {
-  return new Promise((resolve) => {
-    chrome.storage.sync.get(key, function (res) {
-      resolve(res[key]);
-    });
-  });
-}
-
 async function refreshNotifications() {
   console.log("refreshNotifications");
-  clearInterval(intervalId);
+  clearInterval(notificationsIntervalId);
   const audioFile = await loadFromStorage(STORAGE_KEYS.audioFile);
   const timeout = await loadFromStorage(STORAGE_KEYS.timeout);
   audioElement = createAudioElement(audioFile);
-  intervalId = startNotifications(timeout);
+  notificationsIntervalId = startNotifications(timeout);
+}
+
+function trackRemainingTime() {
+  return setInterval(async () => {
+    let remainingTime = await loadFromStorage(STORAGE_KEYS.remainingTime);
+    if (remainingTime < 0) {
+      remainingTime = await loadFromStorage(STORAGE_KEYS.timeout);
+    } else {
+      remainingTime -= REMAINING_TIME_REFRESH_INTERVAL;
+    }
+    saveToStorage(STORAGE_KEYS.remainingTime, remainingTime);
+  }, REMAINING_TIME_REFRESH_INTERVAL);
 }
 
 function startNotifications(timeout) {

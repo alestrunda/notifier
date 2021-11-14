@@ -16,3 +16,19 @@ export function createOptionElement(value, name) {
   option.innerHTML = name;
   return option;
 }
+
+export function loadFromStorage(key) {
+  return new Promise((resolve) => {
+    chrome.storage.sync.get(key, function (res) {
+      resolve(res[key]);
+    });
+  });
+}
+
+export function saveToStorage(key, value) {
+  return new Promise((resolve) => {
+    chrome.storage.sync.set({ [key]: value }, function () {
+      resolve();
+    });
+  });
+}
