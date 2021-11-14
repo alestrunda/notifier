@@ -32,7 +32,7 @@ submitButton.onclick = function () {
     },
     function () {
       showUserMessage(
-        `Timeout set to ${toMinutes(timeout)}m.<br />Audio set to "${
+        `Timeout set to ${toMinutes(timeout)} minutes.<br />Audio set to "${
           AUDIO_FILES[audioFile]
         }".`
       );
