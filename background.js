@@ -18,16 +18,16 @@ let remainingTimeIntervalId;
 
 chrome.runtime.onInstalled.addListener(async function () {
   await setDefaults();
-  start();
+  await start();
 });
 
 chrome.runtime.onStartup.addListener(async function () {
-  start();
+  await start();
 });
 
-chrome.runtime.onMessage.addListener(function (message) {
+chrome.runtime.onMessage.addListener(async function (message) {
   if (message === MESSAGE.refresh) {
-    refreshNotifications();
+    await refreshNotifications();
     return;
   }
   throw `Handler for "${message}" not implemented`;
@@ -36,7 +36,7 @@ chrome.runtime.onMessage.addListener(function (message) {
 async function start() {
   const timeout = await loadFromStorage(STORAGE_KEYS.timeout);
   notificationsIntervalId = startNotifications(timeout);
-  remainingTimeIntervalId = trackRemainingTime();
+  remainingTimeIntervalId = await trackRemainingTime();
 }
 
 async function setDefaults() {
@@ -71,13 +71,16 @@ async function refreshNotifications() {
   const timeout = await loadFromStorage(STORAGE_KEYS.timeout);
   audioElement = createAudioElement(audioFile);
   notificationsIntervalId = startNotifications(timeout);
-  remainingTimeIntervalId = trackRemainingTime();
+  remainingTimeIntervalId = await trackRemainingTime();
 }
 
-function trackRemainingTime() {
+async function trackRemainingTime() {
+  let remainingTime =
+    (await loadFromStorage(STORAGE_KEYS.timeout)) -
+    REMAINING_TIME_REFRESH_INTERVAL;
+  saveToStorage(STORAGE_KEYS.remainingTime, remainingTime);
   return setInterval(async () => {
-    let remainingTime = await loadFromStorage(STORAGE_KEYS.remainingTime);
-    if (remainingTime < 0) {
+    if (remainingTime === 0) {
       remainingTime = await loadFromStorage(STORAGE_KEYS.timeout);
     }
     remainingTime -= REMAINING_TIME_REFRESH_INTERVAL;
