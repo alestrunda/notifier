@@ -25,6 +25,7 @@ chrome.runtime.onInstalled.addListener(async function () {
 chrome.runtime.onStartup.addListener(async function () {
   const timeout = await loadFromStorage(STORAGE_KEYS.timeout);
   notificationsIntervalId = startNotifications(timeout);
+  trackRemainingTime();
 });
 
 chrome.runtime.onMessage.addListener(function (message) {
@@ -51,7 +52,7 @@ async function setDefaults() {
       },
       function () {
         console.log(
-          `Defaults set: ${toMinutes(audioFile)}, ${DEFAULT_TIMEOUT}ms.`
+          `Defaults set: ${audioFile}, ${toMinutes(DEFAULT_TIMEOUT)}m.`
         );
         resolve();
       }
