@@ -1,5 +1,5 @@
 export function toMinutes(milliseconds) {
-  return milliseconds / 60 / 1000;
+  return Math.ceil(milliseconds / 60 / 1000);
 }
 
 export function toMilliseconds(minutes) {

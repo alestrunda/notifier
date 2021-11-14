@@ -14,18 +14,15 @@ import {
 
 let audioElement = createAudioElement(Object.keys(AUDIO_FILES)[0]);
 let notificationsIntervalId;
+let remainingTimeIntervalId;
 
 chrome.runtime.onInstalled.addListener(async function () {
   await setDefaults();
-  const timeout = await loadFromStorage(STORAGE_KEYS.timeout);
-  notificationsIntervalId = startNotifications(timeout);
-  trackRemainingTime();
+  start();
 });
 
 chrome.runtime.onStartup.addListener(async function () {
-  const timeout = await loadFromStorage(STORAGE_KEYS.timeout);
-  notificationsIntervalId = startNotifications(timeout);
-  trackRemainingTime();
+  start();
 });
 
 chrome.runtime.onMessage.addListener(function (message) {
@@ -35,6 +32,12 @@ chrome.runtime.onMessage.addListener(function (message) {
   }
   throw `Handler for "${message}" not implemented`;
 });
+
+async function start() {
+  const timeout = await loadFromStorage(STORAGE_KEYS.timeout);
+  notificationsIntervalId = startNotifications(timeout);
+  remainingTimeIntervalId = trackRemainingTime();
+}
 
 async function setDefaults() {
   const audioFile = Object.keys(AUDIO_FILES)[0];
@@ -63,10 +66,12 @@ async function setDefaults() {
 async function refreshNotifications() {
   console.log("refreshNotifications");
   clearInterval(notificationsIntervalId);
+  clearInterval(remainingTimeIntervalId);
   const audioFile = await loadFromStorage(STORAGE_KEYS.audioFile);
   const timeout = await loadFromStorage(STORAGE_KEYS.timeout);
   audioElement = createAudioElement(audioFile);
   notificationsIntervalId = startNotifications(timeout);
+  remainingTimeIntervalId = trackRemainingTime();
 }
 
 function trackRemainingTime() {
@@ -74,9 +79,8 @@ function trackRemainingTime() {
     let remainingTime = await loadFromStorage(STORAGE_KEYS.remainingTime);
     if (remainingTime < 0) {
       remainingTime = await loadFromStorage(STORAGE_KEYS.timeout);
-    } else {
-      remainingTime -= REMAINING_TIME_REFRESH_INTERVAL;
     }
+    remainingTime -= REMAINING_TIME_REFRESH_INTERVAL;
     saveToStorage(STORAGE_KEYS.remainingTime, remainingTime);
   }, REMAINING_TIME_REFRESH_INTERVAL);
 }

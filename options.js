@@ -4,12 +4,7 @@ import {
   toMilliseconds,
   toMinutes,
 } from "./helpers.js";
-import {
-  AUDIO_FILES,
-  MESSAGE,
-  REMAINING_TIME_REFRESH_INTERVAL,
-  STORAGE_KEYS,
-} from "./settings.js";
+import { AUDIO_FILES, MESSAGE, STORAGE_KEYS } from "./settings.js";
 
 const submitButton = document.getElementById("submit");
 const audioSelect = document.getElementById("audio");
@@ -17,10 +12,11 @@ const timeoutInput = document.getElementById("timeout");
 const outputElement = document.getElementById("output");
 const remainingElement = document.getElementById("remaining");
 
-(function main() {
+(async function main() {
   setInputValues();
   initAudioSelect();
-  trackRemainingTime();
+  const remainingTime = await loadFromStorage(STORAGE_KEYS.remainingTime);
+  showRemainingTime(remainingTime);
 })();
 
 // handle submit
@@ -51,15 +47,6 @@ async function setInputValues() {
   const audioFile = await loadFromStorage(STORAGE_KEYS.audioFile);
   audioSelect.value = audioFile;
   timeoutInput.value = toMinutes(timeout);
-}
-
-async function trackRemainingTime() {
-  let remainingTime = await loadFromStorage(STORAGE_KEYS.remainingTime);
-  showRemainingTime(remainingTime);
-  setInterval(async () => {
-    remainingTime = await loadFromStorage(STORAGE_KEYS.remainingTime);
-    showRemainingTime(remainingTime);
-  }, REMAINING_TIME_REFRESH_INTERVAL);
 }
 
 function initAudioSelect() {
