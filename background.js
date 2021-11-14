@@ -1,4 +1,9 @@
-import { createAudioElement, loadFromStorage, toMinutes } from "./helpers.js";
+import {
+  createAudioElement,
+  loadFromStorage,
+  saveToStorage,
+  toMinutes,
+} from "./helpers.js";
 import {
   AUDIO_FILES,
   DEFAULT_TIMEOUT,
