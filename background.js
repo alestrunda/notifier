@@ -17,6 +17,11 @@ chrome.runtime.onInstalled.addListener(async function () {
   trackRemainingTime();
 });
 
+chrome.runtime.onStartup.addListener(async function () {
+  const timeout = await loadFromStorage(STORAGE_KEYS.timeout);
+  notificationsIntervalId = startNotifications(timeout);
+});
+
 chrome.runtime.onMessage.addListener(function (message) {
   if (message === MESSAGE.refresh) {
     refreshNotifications();
