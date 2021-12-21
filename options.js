@@ -9,6 +9,7 @@ import { AUDIO_FILES, MESSAGE, STORAGE_KEYS } from "./settings.js";
 const submitButton = document.getElementById("submit");
 const audioSelect = document.getElementById("audio");
 const timeoutInput = document.getElementById("timeout");
+const volumeInput = document.getElementById("volume");
 const outputElement = document.getElementById("output");
 const remainingElement = document.getElementById("remaining");
 
@@ -23,16 +24,20 @@ const remainingElement = document.getElementById("remaining");
 submitButton.onclick = function () {
   const audioFile = audioSelect.value;
   const timeout = toMilliseconds(timeoutInput.value);
+  const volume = volumeInput.value;
 
   chrome.storage.sync.set(
     {
       [STORAGE_KEYS.STORAGE_KEYS]: audioFile,
       [STORAGE_KEYS.remainingTime]: timeout,
       [STORAGE_KEYS.timeout]: timeout,
+      [STORAGE_KEYS.volume]: volume,
     },
     function () {
       showUserMessage(
-        `Timeout set to ${toMinutes(timeout)} minutes.<br />Audio set to "${
+        `Timeout set to ${toMinutes(
+          timeout
+        )} minutes.<br />Volume se to ${volume}.<br />Audio set to "${
           AUDIO_FILES[audioFile]
         }".`
       );
@@ -43,10 +48,12 @@ submitButton.onclick = function () {
 };
 
 async function setInputValues() {
-  const timeout = await loadFromStorage(STORAGE_KEYS.timeout);
   const audioFile = await loadFromStorage(STORAGE_KEYS.audioFile);
+  const timeout = await loadFromStorage(STORAGE_KEYS.timeout);
+  const volume = await loadFromStorage(STORAGE_KEYS.volume);
   audioSelect.value = audioFile;
   timeoutInput.value = toMinutes(timeout);
+  volumeInput.value = volume;
 }
 
 function initAudioSelect() {

@@ -1,5 +1,6 @@
 export const REMAINING_TIME_REFRESH_INTERVAL = 60000; // 1 minute
 export const DEFAULT_TIMEOUT = 3600000; // 1 hour
+export const DEFAULT_VOLUME = 100; // %
 
 export const MESSAGE = {
   refresh: "refresh",
@@ -17,4 +18,5 @@ export const STORAGE_KEYS = {
   audioFile: "audioFile",
   remainingTime: "remainingTime",
   timeout: "timeout",
+  volume: "volume",
 };

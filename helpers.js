@@ -6,8 +6,10 @@ export function toMilliseconds(minutes) {
   return minutes * 60 * 1000;
 }
 
-export function createAudioElement(filename) {
-  return new Audio(chrome.runtime.getURL(`audio/${filename}`));
+export function createAudioElement(filename, volume = 100) {
+  const audio = new Audio(chrome.runtime.getURL(`audio/${filename}`));
+  audio.volume = volume / 100;
+  return audio;
 }
 
 export function createOptionElement(value, name) {

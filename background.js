@@ -7,6 +7,7 @@ import {
 import {
   AUDIO_FILES,
   DEFAULT_TIMEOUT,
+  DEFAULT_VOLUME,
   MESSAGE,
   REMAINING_TIME_REFRESH_INTERVAL,
   STORAGE_KEYS,
@@ -52,10 +53,13 @@ async function setDefaults() {
         [STORAGE_KEYS.audioFile]: audioFile,
         [STORAGE_KEYS.remainingTime]: DEFAULT_TIMEOUT,
         [STORAGE_KEYS.timeout]: DEFAULT_TIMEOUT,
+        [STORAGE_KEYS.volume]: DEFAULT_VOLUME,
       },
       function () {
         console.log(
-          `Defaults set: ${audioFile}, ${toMinutes(DEFAULT_TIMEOUT)}m.`
+          `Defaults set: ${audioFile}, ${DEFAULT_VOLUME}%, ${toMinutes(
+            DEFAULT_TIMEOUT
+          )}m.`
         );
         resolve();
       }
@@ -69,7 +73,8 @@ async function refreshNotifications() {
   clearInterval(remainingTimeIntervalId);
   const audioFile = await loadFromStorage(STORAGE_KEYS.audioFile);
   const timeout = await loadFromStorage(STORAGE_KEYS.timeout);
-  audioElement = createAudioElement(audioFile);
+  const volume = await loadFromStorage(STORAGE_KEYS.volume);
+  audioElement = createAudioElement(audioFile, volume);
   notificationsIntervalId = startNotifications(timeout);
   remainingTimeIntervalId = await trackRemainingTime();
 }
