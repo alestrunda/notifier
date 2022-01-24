@@ -1,4 +1,5 @@
 import {
+  createAudioElement,
   createOptionElement,
   loadFromStorage,
   toMilliseconds,
@@ -6,6 +7,7 @@ import {
 } from "./helpers.js";
 import { AUDIO_FILES, MESSAGE, STORAGE_KEYS } from "./settings.js";
 
+const playButton = document.getElementById("play");
 const submitButton = document.getElementById("submit");
 const audioSelect = document.getElementById("audio");
 const timeoutInput = document.getElementById("timeout");
@@ -45,6 +47,14 @@ submitButton.onclick = function () {
       chrome.runtime.sendMessage(undefined, MESSAGE.refresh);
     }
   );
+};
+
+// handle play
+playButton.onclick = async function () {
+  const audioFile = audioSelect.value;
+  const volume = volumeInput.value;
+  let audioElement = createAudioElement(audioFile, volume);
+  audioElement.play();
 };
 
 async function setInputValues() {
