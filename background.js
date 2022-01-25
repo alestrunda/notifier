@@ -14,7 +14,7 @@ import {
   STORAGE_KEYS,
 } from "./settings.js";
 
-let audioElement = createAudioElement(Object.keys(AUDIO_FILES)[0]);
+let audioElement;
 let notificationsIntervalId;
 let remainingTimeIntervalId;
 
@@ -36,9 +36,10 @@ chrome.runtime.onMessage.addListener(async function (message) {
 });
 
 async function start() {
+  const audioFile = await loadFromStorage(STORAGE_KEYS.audioFile);
   const timeout = await loadFromStorage(STORAGE_KEYS.timeout);
   const volume = await loadFromStorage(STORAGE_KEYS.volume);
-  setVolume(audioElement, volume);
+  audioElement = createAudioElement(audioFile, volume);
   notificationsIntervalId = startNotifications(timeout);
   remainingTimeIntervalId = await trackRemainingTime();
 }
