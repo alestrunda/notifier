@@ -7,9 +7,13 @@ export function toMilliseconds(minutes) {
 }
 
 export function createAudioElement(filename, volume = 100) {
-  const audio = new Audio(chrome.runtime.getURL(`audio/${filename}`));
-  audio.volume = volume / 100;
-  return audio;
+  const audioElement = new Audio(chrome.runtime.getURL(`audio/${filename}`));
+  setVolume(audioElement, volume);
+  return audioElement;
+}
+
+export function setVolume(audioElement, volume) {
+  audioElement.volume = volume / 100;
 }
 
 export function createOptionElement(value, name) {
